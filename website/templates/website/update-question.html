@@ -1,0 +1,83 @@
+{% extends "base.html" %} {% load crispy_forms_tags %}
+{% block title %} Codemen - Update {% endblock title %}
+{% block content %}
+<div class="wrapper-container justify-content-center">
+  <i class="fas fa-code h4 text-primary"></i>
+  <span class="h2 text-primary">CodeMen</span>
+  <span class="h6 text-muted">Every Coder's Second Home</span>
+  <form method="POST" class="w-50 d-flex flex-column justify-content-center" enctype="multipart/form-data">
+    {% csrf_token %} {{ form|crispy }}
+
+    
+    <label for="file" class="btn btn-primary my-2 align-self-end upload"> 
+      <input id="file" type="file" hidden multiple>
+      <i class="fas fa-upload"></i>&nbsp;&nbsp;Upload Image
+    </label>
+    <div class="preview d-flex flex-direction-row mb-4" style="overflow-x:scroll">
+    {% for image in question.get_images %}
+      <div class="mr-2" data-id="I{{ forloop.counter }}" style="width:70px; min-width:70px;position:relative">
+        <span onclick="(function(e){
+          document.querySelector('div[data-id=I{{ forloop.counter }}]').remove()
+        })()" class="text-white font-weight-bold bg-primary rounded-circle position-absolute" style="padding:1px 5px;cursor:pointer;right:0">&times;</span>
+        <img src="{{ image.image }}" class="w-100"/>
+      </div> 
+    {% endfor %}
+    </div>
+    
+
+    <div>
+      <button type="submit" class="btn btn-primary">Update</button>
+      <button
+        type="submit"
+        class="btn btn-danger"
+        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
+<script>
+  const imageChooser = document.querySelector('#file');
+  const preview = document.querySelector('.preview');
+  const post = document.querySelector('button[type=submit]');
+  const chosenImages = {};
+
+  post.addEventListener('click', (e) => {
+    e.preventDefault();
+    const formData = new FormData()
+    formData.append('title', document.querySelector('input[name=title]').value)
+    formData.append('description', document.querySelector('textarea').value)
+    const images = [];
+    for(let image of document.querySelectorAll('img:not(.profile_image)')) images.push(image.src);
+    formData.append('images', images.join(' ')) 
+    fetch("{% url 'update-question' question.pk %}", {
+      method: "POST",
+      headers: { 
+        "X-CSRFToken": token,
+        "X-Requested-With": "XMLHttpRequest",  
+      },
+      body: formData,
+    }).then(() => window.location.href = '{% url "detail-question" question.pk "recent" %}')
+  })
+  
+  imageChooser.addEventListener('change', (e) => {
+    for(const file of e.target.files){
+      reader = new FileReader();
+      reader.onload = (e) => {
+        const id = Math.floor(Math.random() * 200000);
+        preview.innerHTML += `<div class="mr-2" data-id="I${id}" style="width:70px; min-width:70px;position:relative">
+        <span onclick="(function(e){
+          document.querySelector('div[data-id=I${id}]').remove()
+          delete chosenImages[${id}];
+        })()" class="text-white font-weight-bold bg-primary rounded-circle position-absolute" style="padding:1px 5px;cursor:pointer;right:0">&times;</span>
+        <img src="${e.target.result}" class="w-100"/></div>`
+        chosenImages[id] = e.target.result;
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+
+</script>
+
+{% endblock content %}

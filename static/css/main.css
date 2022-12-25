@@ -1,0 +1,61 @@
+body{
+  overflow-x: hidden;
+}
+::-webkit-scrollbar{
+  display: none;
+}
+
+.wrapper-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+textarea:focus {
+  outline: 0.5px solid #007bff;
+}
+
+.ball{
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  right: 5%;
+  top: 80%;
+  background-color: #007bff;
+  padding: 15px 25px;
+  border-radius: 100%;
+  font-family: cursive;
+  box-shadow: -1px 2px 11px 5px rgba(0,0,0,0.48);
+  cursor: pointer;
+  z-index: 2000;
+  color: white;
+  transition: color 1s;
+}
+.ball:hover{
+  color: rgba(255,255,255,0.5);  
+}
+
+i.fa-sign-out-alt:hover {
+  opacity: 0.7;
+}
+
+div.card:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+a:hover{
+  text-decoration: none;
+}
+
+i.fa-arrow-left:hover {
+  opacity: 0.7;
+}
+
+.profile_image{
+  border-radius: 100%;
+  object-fit: cover;
+}

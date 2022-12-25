@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+<!--  -->{% block title %} Question: {{ question.title }} {% endblock title %}
+{% block content %}
+<form method="post" class="wrapper-container justify-content-center">
+  {% csrf_token %}
+  <span class="h3 text-primary"
+    >Are you sure that you wanna delete this question?</span
+  >
+  <span class="h4 text-muted">{{ question.title }}</span>
+  <div class="mt-3">
+    <button type="submit" class="btn btn-danger">Yes</button>
+    <button
+      class="btn btn-primary"
+      type="button"
+      onclick="goToQuestion({{ question.pk }}, window.location.href)"
+    >
+      No
+    </button>
+  </div>
+</form>
+{% endblock content %}

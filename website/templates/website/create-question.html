@@ -1,0 +1,77 @@
+{% extends "base.html" %} {% load static %}{% load crispy_forms_tags %}
+{% block title %} Codemen - Post Question {% endblock title %}
+{% block content %}
+<div class="wrapper-container justify-content-center">
+  <a href="{% url 'home' %}" class="w-50"
+    ><i
+      class="fas fa-arrow-left text-primary h3"
+      style="cursor: pointer"
+      title="Go Back"
+    ></i
+  ></a>
+  <i class="fas fa-code h4 text-primary"></i>
+  <span class="h2 text-primary">CodeMen</span>
+  <span class="h6 text-muted">Every Coder's Second Home</span>
+  <form
+    class="w-50 d-flex flex-column justify-content-center"
+  >
+    {% csrf_token %} {{ qForm|crispy }}
+    <label for="file" class="btn btn-primary my-2 align-self-end upload"> 
+      <input id="file" type="file" hidden multiple>
+      <i class="fas fa-upload"></i>&nbsp;&nbsp;Upload Image
+    </label>
+    <div class="preview d-flex flex-direction-row mb-4" style="overflow-x:scroll">
+    </div>
+    <div class="w-100">
+      <button type="submit" class="btn btn-primary" style="width: 15%">
+        Post
+      </button>
+      <button
+        class="btn btn-danger"
+        onclick="window.location.href = `{% url 'home' %}`"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
+<script>
+  const imageChooser = document.querySelector('#file');
+  const preview = document.querySelector('.preview');
+  const post = document.querySelector('button[type=submit]');
+  const chosenImages = {};
+
+  post.addEventListener('click', (e) => {
+    e.preventDefault();
+    const formData = new FormData()
+    formData.append('title', document.querySelector('input[name=title]').value)
+    formData.append('description', document.querySelector('textarea').value)
+    formData.append('images', Object.values(chosenImages).join(' ')) 
+    fetch("{% url 'create-question' %}", {
+      method: "POST",
+      headers: { 
+        "X-CSRFToken": token,
+        "X-Requested-With": "XMLHttpRequest",  
+      },
+      body: formData,
+    }).then(() => window.location.href = '/home')
+  })
+  
+  imageChooser.addEventListener('change', (e) => {
+    for(const file of e.target.files){
+      reader = new FileReader();
+      reader.onload = (e) => {
+        const id = Math.floor(Math.random() * 200000);
+        preview.innerHTML += `<div class="mr-2" data-id="I${id}" style="width:70px; min-width:70px;position:relative">
+        <span onclick="(function(e){
+          document.querySelector('div[data-id=I${id}]').remove()
+          deconste chosenImages[${id}];
+        })()" class="text-white font-weight-bold bg-primary rounded-circle position-absolute" style="padding:1px 5px;cursor:pointer;right:0">&times;</span>
+        <img src="${e.target.result}" class="w-100"/></div>`
+        chosenImages[id] = e.target.result;
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+</script>
+{% endblock content %}

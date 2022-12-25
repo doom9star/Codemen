@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %} Codemen - Home {% endblock title %}
+{% block content %}
+<div> 
+  {% if user.is_authenticated %}
+   <div class="ball" onclick="(function(){
+     window.location.href = '{% url 'create-question' %}'
+   })();">
+      <i class="fas fa-question"></i>
+      <span>Ask</span>
+   </div>
+  <div class="d-flex mt-5 mx-auto flex-column" style="width: 95%;">
+    <div class="w-75 mr-4 d-flex flex-column mx-auto">
+      <h3
+        class="text-center h5 text-secondary  align-self-center pb-2"
+      >
+          <i class="fas fa-users"></i> Public Questions<br/>
+        {% if not other_questions|length > 0 %} 
+          <i class="fas fa-code h1 text-primary mt-5"></i>
+        {% endif %}
+      </h3>
+      {% for question in other_questions %}
+      <div
+        class="card mt-4"
+        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+        style="cursor: pointer"
+      >
+        <div class="card-body">
+          <span class="text-primary h5">{{ question.title }}</span>
+          <p class="text-truncate pt-2">{{ question.description }}</p>
+          <div>
+            <span class="text-muted">{{ question.created.date }}</span>
+            <span class="float-right text-muted h6"
+              >Answers - {{ question.get_answers|length }}</span
+            > 
+          </div>
+        </div>
+      </div>
+      {% endfor %} {% if more_questions %}
+      <button class="btn btn-primary my-4" id="load">Load More</button>
+      {% endif %}
+    </div>
+    <div class="w-75 d-flex flex-column mx-auto">
+      <h3
+        class="text-center h5 text-secondary w-50 align-self-center pb-2 mt-5"
+      >
+        <i class="fas fa-user-tag"></i> Your Questions<br/>
+        {% if not my_questions|length > 0 %}
+            <i class="fas fa-code h1 text-primary mt-5"></i>
+        {% endif %}
+      </h3>
+      {% for question in my_questions %}
+      <div
+        class="card mt-4"
+        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+        style="cursor: pointer"
+      >
+        <div class="card-body">
+          <span class="text-primary h5">{{ question.title }}</span>
+          <p class="text-truncate pt-2">{{ question.description }}</p>
+          <div>
+            <span class="text-muted">{{ question.created.date }}</span>
+            <span class="float-right text-muted h6"
+              >Answers - {{ question.get_answers|length }}</span
+            >
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="d-flex align-items-center w-75 mx-auto">
+    <a href="{% url 'index' %}"
+      ><i
+        class="fas fa-arrow-left text-primary h3"
+        style="cursor: pointer"
+        title="Go Back"
+      ></i
+    ></a>
+    <div class="d-flex flex-column my-5 align-items-center mx-auto">
+      <i class="fas fa-code h5 text-primary"></i>
+      <span class="h2 text-primary font-weight-bold">CodeMen</span>
+      <span class="h5 text-muted">Every coder's second home</span>
+    </div>
+  </div>
+  <div class="w-75 d-flex flex-column align-items-center mx-auto">
+    <span
+      class="text-primary text-center h4 mr-4 mb-3 w-25 pb-2"
+      style="border-bottom: 1px solid #007bff"
+      >Questions</span
+    ><br/>
+      {% if not questions|length > 0 %}
+        <i class="fas fa-code h1 text-primary mt-5"></i>
+      {% endif %}
+    {% for question in questions %}
+    <div
+      class="card mt-4 w-100"
+        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+      style="cursor: pointer"
+    >
+      <div class="card-body">
+        <span class="text-primary h6">{{ question.title }}</span>
+        <p class="text-truncate">{{ question.description }}</p>
+        <div>
+          <span class="text-muted">{{ question.created.date }}</span>
+          <span class="float-right text-muted h6"
+            >Answers - {{ question.totalAnswers }}</span
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% if more_questions %}
+    <button class="btn btn-primary my-4" id="load">Load More</button>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  sessionStorage.setItem("cursor", 5);
+  let parentDiv = document.querySelector("div.card")?.parentElement;
+  let load = document.getElementById("load");
+  if (load)
+    load.addEventListener("click", () => {
+      fetch(
+        `${window.location.origin}/get-more-questions/${sessionStorage.getItem(
+          "cursor"
+        )}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          parentDiv.removeChild(document.getElementById("load"));
+          for (const question of JSON.parse(data.questions)) {
+            parentDiv.innerHTML += `
+          <div
+            class="card mt-4 w-100"
+            onclick="goToQuestion({{ question.pk }}, window.location.href)"
+            style="cursor: pointer">
+            <div class="card-body">
+              <span class="text-primary h6">${question.fields.title}</span>
+              <p class="text-truncate">${question.fields.description}</p>
+              <div>
+                <span class="text-muted">27/01/2020</span>
+                <span class="float-right text-muted font-weight-bold">Answers - ${question.fields.totalAnswers}</span>
+              </div>
+            </div>
+          </div>`;
+          }
+          sessionStorage.setItem(
+            "cursor",
+            sessionStorage.getItem("cursor") + 5
+          );
+          if (data.more_questions)
+            parentDiv.innerHTML +=
+              '<button class="btn btn-primary my-4" id="load">Load More</button>';
+          else parentDiv.lastElementChild.style.marginBottom = "4%";
+        });
+    });
+
+  window.onbeforeunload = () => {
+    sessionStorage.setItem("cursor", 5);
+  };
+</script>
+{% endblock content %}
