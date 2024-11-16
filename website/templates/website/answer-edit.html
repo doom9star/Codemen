@@ -1,13 +1,13 @@
 {% extends "base.html" %} {% load crispy_forms_tags %}
-<!-- hello world go0 -->{% block title %} Codemen - Login {% endblock title %}
+{% block title %} Codemen - Edit Answer {% endblock title %}
 {% block content %}
 <div class="wrapper-container justify-content-center">
-  <i class="fas fa-code h4 text-primary"></i>
-  <span class="h2 text-primary">CodeMen</span>
-  <span class="h6 text-muted">Every Coder's Second Home</span>
   <form method="POST" class="w-50 d-flex flex-column justify-content-center">
+    <div class="mb-5">
+      <h6 class="text-secondary font-weight-bold">Query</h6>
+      <p class="text-muted h6" style="white-space:pre-wrap;margin-left:6%">{{ question.title }}</p>
+    </div>
     {% csrf_token %} {{ form|crispy }}
-
     <div>
       <button type="submit" class="btn btn-primary">Edit</button>
       <button

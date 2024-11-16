@@ -15,108 +15,126 @@
 
 <div class="wrapper-container" style="height:auto;">
   <div class="mt-4" style="width:90%;">
-    <a href="{% url 'home' %}" class="w-50"
+    <a href="{% url 'home' %}" 
       ><i
-        class="fas fa-arrow-left text-primary h3"
+        class="fas fa-arrow-left text-secondary h5"
         style="cursor: pointer"
         title="Go Back"
       ></i
     ></a>
-
-    <div class="jumbotron mt-4" style="box-shadow: 0px 3px 20px -3px rgba(100,100,100,0.75);background-color:white">
+    <div class="jumbotron mt-4 border rounded" style="background-color:white">
       <div class="d-flex justify-content-between">
         <div>
           <img src="{% if question.user.image %}{{ question.user.image }}{% else %}{% static 'images/noImg.jpg' %}{% endif %}" class="profile_image" style="width:50px;height:50px;margin-right:5px" alt="no-image"/>
-          <span class="h5 text-muted"
-            >@{{ question.user.username }}</span
+          <span class="h6 text-muted"
+            >{{ question.user.username }}</span
           >
         </div>
         <span class="text-muted" 
-          ><i class="fas fa-calendar-alt h6"></i>&nbsp;&nbsp;Posted: &nbsp;&nbsp;{{ question.created.date }}</span>
+          ><i class="fas fa-calendar-alt h6"></i>&nbsp;&nbsp;{{ question.created.date }}</span>
       </div>
-      <h5 class="mt-5 text-primary ml-5"><i class="fab fa-500px"></i>&nbsp;Query</h5>
+      <h6 class="mt-5 ml-5 text-secondary font-weight-bold">Query</h6>
       <p class="text-muted h6" style="white-space:pre-wrap;margin-left:6%">{{ question.title }}</p>
-      <h5 class="mt-4 text-primary mt-5 ml-5"><i class="fab fa-500px"></i>&nbsp;Description</h5>
+      <h6 class="text-secondary mt-5 ml-5 font-weight-bold">Description</h6>
       <p class="text-muted h6" style="white-space:pre-wrap;margin-left:6%">{{ question.description }}</p>
+      {% if question.get_images|length > 0 %}
+      <h6 class="text-secondary mt-5 ml-5 font-weight-bold">Attachments</h6>
+      <div class="d-flex">
         {% for image in question.get_images %}
-        <img src="{{ image.image }}" class="mt-5" style="margin-left:6%;height:500px;object-fit:cover;width:88%;box-shadow: 0px 3px 20px -3px rgba(100,100,100,0.75);" alt="imgjpeg">
+        <img src="{{ image.image }}" style="margin-left:6%;height:250px;object-fit:contain;width:250px;" alt="imgjpeg">
         {% endfor %}
+      </div>
+      {% endif %}
         <div class="d-flex justify-content-end mt-5">
       {% if user.is_authenticated and user == question.user %}
           <button
             type="button"
             onclick="window.location.href = `{% url 'update-question' question.pk %}`"
             class="btn btn-primary mr-2"
-          ><i class="fas fa-pen"></i> &nbsp;Edit
+          ><i class="fas fa-pen"></i>
           </button>
           <button
             type="button"
             onclick="window.location.href = `{% url 'delete-question' question.pk %}`"
             class="btn btn-danger"
-          ><i class="fas fa-trash-alt"></i> &nbsp;Delete
+          ><i class="fas fa-trash-alt"></i>
           </button>
       {% endif %}
-      {% if user.is_authenticated and user != question.user %}
-          <button
-            type="button"
-            class="btn btn-warning text-white"
-          ><i class="fas fa-flag"></i> &nbsp;Report
-          </button>
-      {% endif %}
-        </div>
+      </div>
     </div>
+    {% if user.is_authenticated %}
+      <div class="d-flex my-5 w-100">
+        <form
+          method="POST"
+          action="{% url 'answer-question' question.pk %}"
+          class="d-flex flex-column float-right"
+          style="width: 100%"
+        >
+          {% csrf_token %}
+          <textarea
+            name="answer"
+            rows="5"
+            required
+            class="p-2"
+            style="border: 1px solid rgba(0, 0, 0, 0.2); width:85%"
+            placeholder="Answer here..."
+          ></textarea>
+          <button type="submit" class="btn btn-primary mt-2 align-self-start">
+            Submit
+          </button>
+        </form>
+      </div>
+    {% endif %}
     {% if question.get_answers|length > 0 %}
     <div class="d-flex justify-content-center">
-      <div>
-        <span class="text-muted font-weight-bold mr-2"><i class="fas fa-sort-amount-down-alt"></i>&nbsp;Sort</span>
-        <select class="p-2 text-secondary font-weight-bold" style="cursor:pointer;" onchange="sortAnswers(this)">
+        <select class="p-2 text-secondary bg-white border-0" style="cursor:pointer;" onchange="sortAnswers(this)">
           <option value="recent">Recent</option>
           <option value="upvotes">Upvotes</option>
           <option value="popular">Popular</option>
         </select>
-      </div>
     </div>
     {% endif %}
       {% for answer in answers %}
-         <div class="d-flex mt-4 position-relative" style="cursor:pointer;">
+         <div class="d-flex my-4 position-relative" style="cursor:pointer;">
             <div
               class="d-flex flex-column align-items-center justify-content-center"
               style="width: 10%; border: 1px solid rgba(0, 0, 0, 0.2)">
               <i
-                class="fas fa-angle-up "
-                style="cursor: pointer;color:{% if answer.vote_status == 1 %}#CCCCCC{% endif %}"
+                class="fas fa-angle-up border px-2"
+                style="cursor: pointer;color:{% if answer.vote_status == 1 %}#CCCCCC{% else %}#808080{% endif %}"
                 onclick="voteAnswer(this, 'UPVOTE', {{ answer.pk }});"
               ></i>
-              <span class="text-muted font-weight-bold h5 mt-2"
-                ><i class="far fa-eye h6 mr-2"></i>{{ answer.upvoters.count|add:answer.downvoters.count }}</span>
+              <span class="text-muted font-weight-bold mt-2 my-4" style="font-size: 0.7rem"
+                ><i class="far fa-eye mr-2"></i>{{ answer.upvoters.count|add:answer.downvoters.count }}</span>
               <i
-                class="fas fa-angle-down"
-                style="cursor: pointer;color:{% if answer.vote_status == 0 %}#CCCCCC{% endif %}"
+                class="fas fa-angle-down border px-2"
+                style="cursor: pointer;color:{% if answer.vote_status == 0 %}#CCCCCC{% else %}#808080{% endif %}"
                 onclick="voteAnswer(this, 'DOWNVOTE', {{ answer.pk }});"
               ></i>
             </div>
             <div class="card w-100">
               <div class="card-body" data-id="{{ answer.pk }}">
-                <div class="d-flex float-right" style="font-family:fantasy">
-                  <i class="far fa-thumbs-up mr-3 h5 text-success"
+                <div class="d-flex float-right font-light" style="font-size: 0.5rem">
+                  <i class="fas fa-angle-up mr-4 text-success"
                     ><span> {{ answer.upvoters.count }}</span></i
                   >
-                  <i class="far fa-thumbs-down h5 text-danger"
+                  <i class="fas fa-angle-down text-danger"
                     ><span> {{ answer.downvoters.count }}</span></i
                   >
                 </div>
-                  <img src="{% if answer.answerer.image %}{{ answer.answerer.image }}{% else %}{% static 'images/noImg.jpg' %}{% endif %}" class="profile_image" style="width:30px;height:30px;margin-right:0px" alt="no-image"/>
-                  <span class="h5 text-primary">@{{ answer.answerer }}</span><br />
+                  <img src="{% if answer.answerer.image %}{{ answer.answerer.image }}{% else %}{% static 'images/noImg.jpg' %}{% endif %}" class="profile_image" style="width:30px;height:30px;margin-right:5px" alt="no-image"/>
+                  <span class="h6 text-secondary">{{ answer.answerer }}</span><br />
                 <div style="margin: 3%;">
-                  <span class="text-muted">{{ answer.answer }}</span>
+                  <span class="text-muted font-weight-bold">{{ answer.answer }}</span>
                 </div>
-                <div class="d-flex justify-content-between">
-                  
-                  <span class="text-muted" 
-                  ><i class="fas fa-calendar-alt h6"></i>&nbsp;&nbsp;{{ answer.created.date }}</span>
-                  <button class="btn btn-outline-primary" style="{% if not answer.replies.all %}visibility:hidden;{% endif %}" data-id="{{ answer.pk }}" onclick="toggleReplies(this);">
-                    <span class="h6"><i class="fas fa-chevron-down h6"></i> {{ answer.replies.all|length }} Replies</span>
-                  </button>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <span class="text-muted" style="font-size: 0.7rem"
+                    ><i class="fas fa-calendar-alt"></i>&nbsp;&nbsp;{{ answer.created.date }}</span>
+                    <button class="btn btn-outline-primary ml-4" style="{% if not answer.replies.all %}visibility:hidden;{% endif %}" data-id="{{ answer.pk }}" onclick="toggleReplies(this);">
+                      <span class="h6"><i class="fas fa-chevron-down h6"></i> {{ answer.replies.all|length }} Replies</span>
+                    </button>
+                  </div>
                   <div class="d-flex justify-content-end">
                     {% if user.is_authenticated and user == answer.answerer %}
                       <button
@@ -145,13 +163,6 @@
                         <i class="fas fa-trash-alt"></i> 
                       </button>
                     {% endif %}
-                    {% if user.is_authenticated and user != answer.answerer%}
-                      <button
-                        class="btn btn-outline-warning"
-                      >
-                      <i class="fas fa-flag"></i>
-                      </button>
-                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -163,9 +174,9 @@
           <div class="card card-body mt-1" style="width:88.5%">
             <div>
               <img src="{% if reply.replier.image %}{{ reply.replier.image }}{% else %}{% static 'images/noImg.jpg' %}{% endif %}" class="profile_image" style="width:30px;height:30px;margin-right:0px" alt="no-image"/>
-              <span class="text-primary h5">@{{ reply.replier }}</span>
+              <span class="text-secondary h6">@{{ reply.replier }}</span>
             </div>
-            <span class="h6 text-muted mt-3">{{ reply.reply }}</span>
+            <span class="h6 text-muted mt-3 font-weight-bold ml-4">{{ reply.reply }}</span>
           </div>
         {% endfor %}
       </div>
@@ -198,28 +209,6 @@
         </form>
       </div>
     {% endfor %}
-    {% if user.is_authenticated %}
-      <div class="d-flex my-5 w-100">
-        <form
-          method="POST"
-          action="{% url 'answer-question' question.pk %}"
-          class="d-flex flex-column float-right"
-          style="width: 100%"
-        >
-          {% csrf_token %}
-          <textarea
-            name="answer"
-            required
-            class="p-5"
-            style="border: 1px solid rgba(0, 0, 0, 0.2); width:85%"
-            placeholder="Answer here..."
-          ></textarea>
-          <button type="submit" class="btn btn-primary mt-2 align-self-start">
-            Submit Answer
-          </button>
-        </form>
-      </div>
-    {% endif %}
   </div>
 </div>
 

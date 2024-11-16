@@ -2,29 +2,19 @@
 {% block title %} Codemen - Update {% endblock title %}
 {% block content %}
 <div class="wrapper-container justify-content-center">
-  <i class="fas fa-code h4 text-primary"></i>
-  <span class="h2 text-primary">CodeMen</span>
-  <span class="h6 text-muted">Every Coder's Second Home</span>
   <form method="POST" class="w-50 d-flex flex-column justify-content-center" enctype="multipart/form-data">
     {% csrf_token %} {{ form|crispy }}
-
-    
     <label for="file" class="btn btn-primary my-2 align-self-end upload"> 
       <input id="file" type="file" hidden multiple>
-      <i class="fas fa-upload"></i>&nbsp;&nbsp;Upload Image
+      <i class="fas fa-upload"></i>
     </label>
     <div class="preview d-flex flex-direction-row mb-4" style="overflow-x:scroll">
     {% for image in question.get_images %}
       <div class="mr-2" data-id="I{{ forloop.counter }}" style="width:70px; min-width:70px;position:relative">
-        <span onclick="(function(e){
-          document.querySelector('div[data-id=I{{ forloop.counter }}]').remove()
-        })()" class="text-white font-weight-bold bg-primary rounded-circle position-absolute" style="padding:1px 5px;cursor:pointer;right:0">&times;</span>
         <img src="{{ image.image }}" class="w-100"/>
       </div> 
     {% endfor %}
     </div>
-    
-
     <div>
       <button type="submit" class="btn btn-primary">Update</button>
       <button

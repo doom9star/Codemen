@@ -6,15 +6,42 @@
    <div class="ball" onclick="(function(){
      window.location.href = '{% url 'create-question' %}'
    })();">
-      <i class="fas fa-question"></i>
       <span>Ask</span>
    </div>
   <div class="d-flex mt-5 mx-auto flex-column" style="width: 95%;">
-    <div class="w-75 mr-4 d-flex flex-column mx-auto">
+    <div class="w-75 d-flex flex-column mx-auto">
+      {% if my_questions|length > 0 %}
+      <h3
+        class="text-center h5 text-secondary w-50 align-self-center pb-2 mt-5"
+      >
+        <i class="fas fa-user-tag"></i> Your Questions<br/>
+      </h3>
+      {% endif %}
+      {% for question in my_questions %}
+      <div
+        class="card mt-4"
+        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+        style="cursor: pointer"
+      >
+        <div class="card-body">
+          <span class="text-primary h5">{{ question.title }}</span>
+          <p class="text-truncate pt-2">{{ question.description }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="float-right text-muted h6"
+              >{{ question.get_answers|length }} Answers</span
+            >
+            <span class="text-muted" style="font-size: 0.7rem">{{ question.created.date }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="my-4"></div>
+    <div class="w-75 mt-4 d-flex flex-column mx-auto">
       <h3
         class="text-center h5 text-secondary  align-self-center pb-2"
       >
-          <i class="fas fa-users"></i> Public Questions<br/>
+        <i class="fas fa-users"></i> &nbsp;Public Questions<br/>
         {% if not other_questions|length > 0 %} 
           <i class="fas fa-code h1 text-primary mt-5"></i>
         {% endif %}
@@ -28,11 +55,11 @@
         <div class="card-body">
           <span class="text-primary h5">{{ question.title }}</span>
           <p class="text-truncate pt-2">{{ question.description }}</p>
-          <div>
-            <span class="text-muted">{{ question.created.date }}</span>
+          <div class="d-flex justify-content-between align-items-center">
             <span class="float-right text-muted h6"
-              >Answers - {{ question.get_answers|length }}</span
-            > 
+              >{{ question.get_answers|length }} Answers</span
+            >
+            <span class="text-muted" style="font-size: 0.7rem">{{ question.created.date }}</span>
           </div>
         </div>
       </div>
@@ -40,51 +67,18 @@
       <button class="btn btn-primary my-4" id="load">Load More</button>
       {% endif %}
     </div>
-    <div class="w-75 d-flex flex-column mx-auto">
-      <h3
-        class="text-center h5 text-secondary w-50 align-self-center pb-2 mt-5"
-      >
-        <i class="fas fa-user-tag"></i> Your Questions<br/>
-        {% if not my_questions|length > 0 %}
-            <i class="fas fa-code h1 text-primary mt-5"></i>
-        {% endif %}
-      </h3>
-      {% for question in my_questions %}
-      <div
-        class="card mt-4"
-        onclick="goToQuestion({{ question.pk }}, window.location.href)"
-        style="cursor: pointer"
-      >
-        <div class="card-body">
-          <span class="text-primary h5">{{ question.title }}</span>
-          <p class="text-truncate pt-2">{{ question.description }}</p>
-          <div>
-            <span class="text-muted">{{ question.created.date }}</span>
-            <span class="float-right text-muted h6"
-              >Answers - {{ question.get_answers|length }}</span
-            >
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
   </div>
   {% else %}
-  <div class="d-flex align-items-center w-75 mx-auto">
+  <div class="d-flex align-items-center w-75 mx-auto my-5">
     <a href="{% url 'index' %}"
       ><i
-        class="fas fa-arrow-left text-primary h3"
+        class="fas fa-arrow-left text-secondary h5"
         style="cursor: pointer"
         title="Go Back"
       ></i
     ></a>
-    <div class="d-flex flex-column my-5 align-items-center mx-auto">
-      <i class="fas fa-code h5 text-primary"></i>
-      <span class="h2 text-primary font-weight-bold">CodeMen</span>
-      <span class="h5 text-muted">Every coder's second home</span>
-    </div>
   </div>
-  <div class="w-75 d-flex flex-column align-items-center mx-auto">
+  <div class="w-75 d-flex flex-column align-items-center mx-auto mb-5">
     <span
       class="text-primary text-center h4 mr-4 mb-3 w-25 pb-2"
       style="border-bottom: 1px solid #007bff"
@@ -102,11 +96,11 @@
       <div class="card-body">
         <span class="text-primary h6">{{ question.title }}</span>
         <p class="text-truncate">{{ question.description }}</p>
-        <div>
-          <span class="text-muted">{{ question.created.date }}</span>
+        <div class="d-flex justify-content-between align-items-center">
           <span class="float-right text-muted h6"
-            >Answers - {{ question.totalAnswers }}</span
+            >{{ question.get_answers|length }} Answers</span
           >
+          <span class="text-muted" style="font-size: 0.7rem">{{ question.created.date }}</span>
         </div>
       </div>
     </div>

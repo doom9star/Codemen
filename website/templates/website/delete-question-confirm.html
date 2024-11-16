@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-<!--  -->{% block title %} Question: {{ question.title }} {% endblock title %}
+{% block title %} Question: {{ question.title }} {% endblock title %}
 {% block content %}
 <form method="post" class="wrapper-container justify-content-center">
   {% csrf_token %}
