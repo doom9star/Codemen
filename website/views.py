@@ -1,6 +1,5 @@
-from json.decoder import JSONDecodeError
-from django.shortcuts import render, redirect, reverse
-from .models import Image, Question, Answer, Reply
+from django.shortcuts import render, redirect
+from .models import Question, Answer, Reply
 from django.contrib.auth import login, logout, authenticate
 from .forms import SignUpForm, LoginForm, QuestionForm
 from django.views.generic import (
@@ -123,15 +122,6 @@ class CreateQuestionView(RedirectIfNotLoggedInMixin, View):
             description=self.request.POST.get("description"),
         )
         q.save()
-        images = [
-            image
-            for image in self.request.POST.get("images", "").strip().split(" ")
-            if len(image) > 0
-        ]
-        for image in images:
-            Image.objects.create(
-                question=q, image=image, name=time.strftime("%d-%m-%Y--%H-%M-%S")
-            )
         return JsonResponse(None, safe=False)
 
 
@@ -176,16 +166,10 @@ class UpdateQuestionView(RedirectIfNotLoggedInMixin, UpdateView):
     template_name = "website/update-question.html"
 
     def post(self, request, pk, *args, **kwargs):
-        Image.objects.filter(question=pk).delete()
-        images = self.request.POST.get("images", "").split(" ")
         question = self.get_object()
         question.title = self.request.POST.get("title")
         question.description = self.request.POST.get("description")
         question.save()
-        for image in images:
-            Image.objects.create(
-                question=question, image=image, name=time.strftime("%d-%m-%Y--%H-%M-%S")
-            )
         return JsonResponse(None, safe=False)
 
     def get_context_data(self, **kwargs):

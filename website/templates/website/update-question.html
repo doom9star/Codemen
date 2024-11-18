@@ -4,23 +4,12 @@
 <div class="wrapper-container justify-content-center">
   <form method="POST" class="w-50 d-flex flex-column justify-content-center" enctype="multipart/form-data">
     {% csrf_token %} {{ form|crispy }}
-    <label for="file" class="btn btn-primary my-2 align-self-end upload"> 
-      <input id="file" type="file" hidden multiple>
-      <i class="fas fa-upload"></i>
-    </label>
-    <div class="preview d-flex flex-direction-row mb-4" style="overflow-x:scroll">
-    {% for image in question.get_images %}
-      <div class="mr-2" data-id="I{{ forloop.counter }}" style="width:70px; min-width:70px;position:relative">
-        <img src="{{ image.image }}" class="w-100"/>
-      </div> 
-    {% endfor %}
-    </div>
     <div>
       <button type="submit" class="btn btn-primary">Update</button>
       <button
         type="submit"
         class="btn btn-danger"
-        onclick="goToQuestion({{ question.pk }}, window.location.href)"
+        onclick="javascript:history.go(-1);"
       >
         Cancel
       </button>
